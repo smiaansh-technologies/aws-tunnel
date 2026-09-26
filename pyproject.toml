@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["aws", "gui", "tunnel"]
+exclude = ["tests", "docs", "scripts"]
+
+[tool.setuptools]
+py-modules = ["config", "logging_setup", "main", "process_utils", "update_checker"]
+
+[project]
+name = "aws-tunnel"
+version = "1.2.0"
+description = "Tkinter GUI for managing AWS SSM/SSH port-forwarding tunnels through EC2 bastions"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Smiansh Technologies"},
+]
+keywords = ["aws", "tunnel", "ssm", "bastion", "ec2", "gui", "tkinter"]
+classifiers = [
+    "Environment :: X11 Applications",
+    "Environment :: Win32 (MS Windows)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: System :: Networking",
+]
+dependencies = [
+    "boto3>=1.43.102",
+    "botocore>=1.43.102",
+    "paramiko>=5.0.0",
+    "pillow>=12.3.0",
+    "pystray>=0.19",
+]
+
+[project.urls]
+Repository = "https://github.com/smiaansh-technologies/aws-tunnel"
+Issues = "https://github.com/smiaansh-technologies/aws-tunnel/issues"
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.22.3",
+]
+test = [
+    "coverage>=7.0",
+    "playwright>=1.40",
+    "pytest>=9.0",
+    "pytest-cov>=7.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["."]
+omit = ["tests/*", "scripts/*", "*/__pycache__/*"]

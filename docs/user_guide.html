@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS Tunnel — User Guide</title>
+<style>
+  :root {
+    --accent: #0078d7;
+    --accent-dark: #005a9e;
+    --sidebar-bg: #f3f3f3;
+    --border: #d0d0d0;
+    --text: #1f1f1f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Tahoma", "Verdana", sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  /* ---------- Layout ---------- */
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 250px;
+    flex: 0 0 250px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    padding: 0 0 24px 0;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .sidebar .brand {
+    background: var(--accent);
+    color: #fff;
+    padding: 16px 18px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .sidebar .brand small { display: block; font-weight: 400; font-size: 11.5px; opacity: .85; }
+  .sidebar nav a {
+    display: block;
+    padding: 7px 18px;
+    color: #0b3d66;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+  }
+  .sidebar nav a:hover { background: #e2effc; border-left-color: var(--accent); }
+  .sidebar nav a.group {
+    margin-top: 10px;
+    font-weight: 600;
+    color: #444;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+
+  .content {
+    flex: 1;
+    min-width: 0;
+    padding: 28px 40px 60px 40px;
+    max-width: 980px;
+  }
+
+  /* ---------- Content typography ---------- */
+  h1 { font-size: 24px; color: var(--accent-dark); margin: 0 0 6px 0; }
+  h2 {
+    font-size: 19px;
+    color: var(--accent-dark);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 4px;
+    margin-top: 40px;
+  }
+  h3 { font-size: 15.5px; margin: 22px 0 6px 0; }
+  p  { margin: 8px 0; }
+  ul, ol { margin: 8px 0 8px 0; padding-left: 26px; }
+  li { margin: 3px 0; }
+  code, .mono {
+    font-family: Consolas, "Courier New", monospace;
+    background: #f4f4f4;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 12.5px;
+  }
+  pre {
+    background: #f7f7f7;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    padding: 10px 14px;
+    overflow-x: auto;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+  .subtitle { color: #666; margin-bottom: 24px; }
+
+  .note, .warning {
+    border-left: 4px solid var(--accent);
+    background: #eef6fd;
+    padding: 10px 14px;
+    margin: 14px 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .warning { border-left-color: #d97706; background: #fdf6ec; }
+
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  th, td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #f0f6fc; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  .shot {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.08);
+    max-width: 100%;
+    margin: 10px 0 4px 0;
+  }
+  .caption { font-size: 12px; color: #666; font-style: italic; margin: 2px 0 14px 2px; }
+
+  .steps { counter-reset: step; padding-left: 0; list-style: none; }
+  .steps > li {
+    counter-increment: step;
+    margin: 10px 0;
+    padding-left: 40px;
+    position: relative;
+  }
+  .steps > li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 1px;
+    width: 26px; height: 26px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  kbd {
+    font-family: Consolas, monospace;
+    background: #eee;
+    border: 1px solid #ccc;
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    padding: 0 5px;
+    font-size: 12px;
+  }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    color: #888;
+    font-size: 12px;
+  }
+
+  /* ---------- Print (used by the Playwright PDF build) ---------- */
+  @media print {
+    .sidebar { display: none; }
+    .content { padding: 0; max-width: none; }
+    h2 { page-break-after: avoid; }
+    .shot, pre, table { page-break-inside: avoid; }
+    section { page-break-inside: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="brand">
+      AWS Tunnel
+      <small>User Guide &mdash; Help Documentation</small>
+    </div>
+    <nav>
+      <a href="#welcome">Welcome</a>
+      <a href="#getting-started">Getting Started</a>
+      <a class="group">Working with the app</a>
+      <a href="#first-run">First-Run Setup Wizard</a>
+      <a href="#profiles">AWS SSO Profiles</a>
+      <a href="#bastions">Bastion Hosts</a>
+      <a href="#tunnels">Opening Tunnels</a>
+      <a href="#tunnel-profiles">Saved Tunnel Profiles</a>
+      <a href="#monitoring">Monitoring &amp; Stopping Tunnels</a>
+      <a href="#terminal">Terminal Sessions</a>
+      <a href="#preferences">Preferences</a>
+      <a href="#tray">System Tray</a>
+      <a class="group">Reference</a>
+      <a href="#data">Data, Logs &amp; Security</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+
+    <h1>AWS Tunnel — User Guide</h1>
+    <p class="subtitle">Manage AWS SSO profiles, connect to bastion hosts, and open secure tunnels — all in one place.</p>
+
+    <!-- ============================================================ -->
+    <section id="welcome">
+      <h2>Welcome</h2>
+      <p>
+        <strong>AWS Tunnel</strong> is a cross-platform desktop app (Windows, macOS, Linux)
+        that fills a gap the AWS console doesn't: it lets you manage your
+        <em>IAM Identity Center (SSO)</em> profiles, log in, discover <em>bastion / jump hosts</em>,
+        and open, monitor, and close <em>port-forwarding tunnels</em> to private resources — all from
+        a single window, fully logged.
+      </p>
+      <h3>What you can do</h3>
+      <ul>
+        <li>Create and manage AWS SSO profiles without hand-editing <code>~/.aws/config</code></li>
+        <li>Log in and out with one click (uses the AWS CLI behind the scenes)</li>
+        <li>Auto-discover bastion hosts tagged in your AWS account</li>
+        <li>Open SSM port-forwarding tunnels to databases and internal services — no SSH keys, no open port 22</li>
+        <li>Save reusable <em>tunnel profiles</em> and reopen them with one click</li>
+        <li>Start interactive terminal sessions on bastions via SSM</li>
+        <li>Keep the app in the system tray so tunnels stay alive while you work</li>
+      </ul>
+      <div class="note">
+        <strong>How to use this guide:</strong> use the table of contents on the left to jump to any
+        topic. Screenshots reflect the app with sample data.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="getting-started">
+      <h2>Getting Started</h2>
+
+      <h3>Prerequisites</h3>
+      <table>
+        <tr><th>Requirement</th><th>Why</th></tr>
+        <tr>
+          <td>Python 3.10+ <em>(or the packaged executable)</em></td>
+          <td>Runs the app</td>
+        </tr>
+        <tr>
+          <td><strong>AWS CLI v2</strong> on your <code>PATH</code></td>
+          <td>Handles <code>aws sso login</code> and its secure token cache</td>
+        </tr>
+        <tr>
+          <td><strong>Session Manager plugin</strong></td>
+          <td>Required by AWS for <code>aws ssm start-session</code> (tunnels &amp; terminal). Install it from the AWS documentation for your OS.</td>
+        </tr>
+        <tr>
+          <td>IAM / SSO permissions</td>
+          <td><code>sso:*</code> (login), <code>ec2:DescribeInstances</code>, <code>ssm:StartSession</code>, <code>ssm:DescribeInstanceInformation</code>, and the Session Manager messaging actions used by port forwarding.</td>
+        </tr>
+      </table>
+
+      <div class="warning">
+        <strong>SSM port-forwarding permissions:</strong> the role assigned through SSO must allow
+        <code>ssm:StartSession</code> on both the bastion instance <em>and</em> the AWS-managed
+        document <code>AWS-StartPortForwardingSessionToRemoteHost</code>. Your AWS administrator
+        attaches this policy — the app cannot grant it.
+      </div>
+
+      <h3>Run from source</h3>
+<pre>
+python -m venv .venv
+source .venv/bin/activate        # .venv\Scripts\activate on Windows
+pip install -r requirements.txt
+python main.py                   # add --debug to also log to the console
+</pre>
+
+      <h3>Run the packaged executable</h3>
+      <p>
+        If you received a packaged build (<code>aws-tunnel.exe</code> on Windows, a
+        single executable on macOS/Linux), just start it — no Python needed. The AWS CLI and the
+        Session Manager plugin must still be installed on the machine.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="first-run">
+      <h2>First-Run Setup Wizard</h2>
+      <p>
+        When you start the app and no SSO profiles exist yet, the <strong>setup wizard</strong>
+        opens automatically and walks you through creating your first profile — mirroring
+        <code>aws configure sso</code> in three friendly steps. You can also open it later via
+        <strong>New Profile</strong> in the Profiles panel.
+      </p>
+
+      <h3>Step 1 — Configure the SSO session</h3>
+      <ol class="steps">
+        <li>Enter your organization's <strong>SSO start URL</strong>
+            (usually <code>https://d-xxxxxxxxxx.awsapps.com/start</code>).</li>
+        <li>Pick the <strong>SSO region</strong> (the region your Identity Center is deployed in).</li>
+        <li>Click <strong>Authenticate →</strong>. Your default browser opens the AWS access portal —
+            sign in there and approve the request.</li>
+      </ol>
+      <img class="shot" src="screenshots/01_setup_wizard_step1.png" alt="Setup wizard — SSO session details">
+      <p class="caption">Step 1 of 3: enter the SSO start URL and region, then authenticate.</p>
+
+      <h3>Step 2 — Select account &amp; role</h3>
+      <p>
+        After authentication the app queries the SSO portal and lists every account and role you
+        can assume. Pick the account, then the role (e.g. <code>AdministratorAccess</code>).
+      </p>
+      <img class="shot" src="screenshots/02_setup_wizard_step2.png" alt="Setup wizard — account and role selection">
+      <p class="caption">Step 2 of 3: choose the account and role from your SSO portal.</p>
+
+      <h3>Step 3 — Profile details</h3>
+      <p>
+        Give the profile a memorable name (e.g. <code>dev-admin</code>) and pick the
+        <strong>default region</strong> for API calls. Click <strong>Create</strong> — the profile is
+        written to <code>~/.aws/config</code>, exactly like the AWS CLI would, and the main window opens.
+      </p>
+      <img class="shot" src="screenshots/03_setup_wizard_step3.png" alt="Setup wizard — profile name and region">
+      <p class="caption">Step 3 of 3: name the profile and choose its default region.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="profiles">
+      <h2>AWS SSO Profiles</h2>
+      <p>
+        The <strong>AWS SSO Profiles</strong> panel at the top of the main window lists every SSO
+        profile found in <code>~/.aws/config</code>, refreshed automatically (interval configurable
+        in Preferences).
+      </p>
+      <img class="shot" src="screenshots/04_main_window.png" alt="Main window with profiles, bastions and tunnels panels">
+      <p class="caption">The main window: Profiles, Bastion Hosts, and Active Tunnels panels.</p>
+
+      <table>
+        <tr><th>Column</th><th>Meaning</th></tr>
+        <tr><td>Profile</td><td>The profile name as stored in <code>~/.aws/config</code></td></tr>
+        <tr><td>Account</td><td>AWS account ID the role belongs to</td></tr>
+        <tr><td>Role</td><td>The SSO role assumed through this profile</td></tr>
+        <tr><td>Status</td><td><span style="color:#1a7f37;font-weight:600">Connected</span> (valid SSO token) or <span style="color:#c62828;font-weight:600">Disconnected</span> (expired / not logged in)</td></tr>
+        <tr><td>Region</td><td>Default region used for API calls</td></tr>
+      </table>
+
+      <h3>Buttons</h3>
+      <table>
+        <tr><th>Button</th><th>Action</th></tr>
+        <tr><td><strong>Refresh</strong></td><td>Re-reads profiles and re-checks login status</td></tr>
+        <tr><td><strong>New Profile</strong></td><td>Opens the 3-step setup wizard (same as first run)</td></tr>
+        <tr><td><strong>Delete Profile</strong></td><td>Removes the selected profile from <code>~/.aws/config</code> (asks for confirmation)</td></tr>
+        <tr><td><strong>Login / Logout</strong></td><td>Starts or ends an SSO session for the selected profile. The button label switches automatically; <kbd>double-click</kbd> a row toggles it too.</td></tr>
+      </table>
+
+      <div class="note">
+        <strong>How login works:</strong> the app delegates to <code>aws sso login</code>, so tokens
+        live in the AWS CLI's own cache (<code>~/.aws/sso/cache</code>). The app never stores or sees
+        your credentials — it only checks whether a valid token exists for the profile.
+      </div>
+      <p>
+        Logging in opens your browser for the AWS access portal. When a profile is connected, the
+        <strong>Bastion Hosts</strong> and <strong>Active Tunnels</strong> panels appear below and
+        bastion discovery starts automatically for the selected profile.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="bastions">
+      <h2>Bastion Hosts</h2>
+      <p>
+        A <em>bastion</em> (jump host) is a small EC2 instance that has network access to private
+        resources. The app discovers candidates automatically whenever you:
+      </p>
+      <ul>
+        <li>log in to a profile,</li>
+        <li>select a different profile, or</li>
+        <li>press <strong>Refresh</strong> / right-click → <strong>Refresh Bastions</strong>.</li>
+      </ul>
+      <img class="shot" src="screenshots/05_bastions_panel.png" alt="Bastion Hosts panel with discovered instances">
+      <p class="caption">Bastion Hosts panel — rows marked with the SSM Agent status.</p>
+
+      <h3>How discovery works</h3>
+      <ol class="steps">
+        <li>Running EC2 instances tagged <code>Role=bastion</code> (configurable) are listed.</li>
+        <li>If <em>none</em> match the tag, all running instances are shown as candidates as a fallback.</li>
+        <li>Each instance is checked against SSM: <strong>SSM Agent = Online</strong> means it can be used for tunnels and terminal sessions right away.</li>
+      </ol>
+
+      <table>
+        <tr><th>Column</th><th>Meaning</th></tr>
+        <tr><td>Name</td><td>EC2 <code>Name</code> tag (or instance ID if untagged)</td></tr>
+        <tr><td>Instance ID</td><td>e.g. <code>i-0abc123def456</code></td></tr>
+        <tr><td>Private IP</td><td>VPC-private address of the instance</td></tr>
+        <tr><td>State</td><td>EC2 instance state (<code>running</code> rows are usable)</td></tr>
+        <tr><td>SSM Agent</td><td><span style="color:#1a7f37;font-weight:600">Online</span> / <span style="color:#c62828;font-weight:600">Offline</span> — required for SSM tunnels &amp; terminal</td></tr>
+      </table>
+
+      <h3>Right-click menu</h3>
+      <ul>
+        <li><strong>Connect Tunnel</strong> — open a saved tunnel profile through this bastion (see <a href="#tunnels">Opening Tunnels</a>)</li>
+        <li><strong>Start Terminal</strong> — interactive SSM shell on the instance (see <a href="#terminal">Terminal Sessions</a>)</li>
+        <li><strong>Refresh Bastions</strong> — re-run discovery</li>
+      </ul>
+
+      <div class="note">
+        Different tag convention in your environment? Change <code>bastion_tag_key</code> /
+        <code>bastion_tag_value</code> in <code>~/.aws-tunnel/settings.json</code> — no code
+        changes needed.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="tunnels">
+      <h2>Opening Tunnels</h2>
+      <p>
+        Tunnels use <strong>AWS SSM Session Manager port forwarding</strong> by default:
+        your traffic goes through the bastion to a target host reachable <em>from</em> the bastion
+        (a database, internal web app, …) using your existing SSO credentials — no SSH keys and no
+        open port 22.
+      </p>
+
+      <h3>The easy way — saved tunnel profiles</h3>
+      <ol class="steps">
+        <li>Log in to a profile and wait for bastions to appear.</li>
+        <li>Right-click a bastion → <strong>Connect Tunnel</strong>.</li>
+        <li>Pick one of your saved tunnel profiles → <strong>Connect</strong>.</li>
+        <li>The tunnel appears in the <strong>Active Tunnels</strong> panel within a second or two.</li>
+      </ol>
+
+      <h3>Creating a new tunnel profile</h3>
+      <p>Open <strong>File → Tunnel Profiles…</strong> and click <strong>New</strong>:</p>
+      <img class="shot" src="screenshots/06_tunnel_profile_editor.png" alt="New Tunnel Profile editor">
+      <p class="caption">The tunnel profile editor — save once, reopen with one click.</p>
+
+      <table>
+        <tr><th>Field</th><th>What to enter</th></tr>
+        <tr><td>Name</td><td>A short label, e.g. <code>dev-postgres</code></td></tr>
+        <tr><td>AWS profile</td><td>The SSO profile to authenticate with</td></tr>
+        <tr><td>Bastion instance ID</td><td>The jump host to tunnel through (dropdown of discovered bastions)</td></tr>
+        <tr><td>Target host</td><td>Hostname reachable <em>from the bastion</em>, e.g. an RDS endpoint</td></tr>
+        <tr><td>Target port</td><td>Remote service port (e.g. <code>5432</code> for PostgreSQL, <code>3306</code> for MySQL, <code>443</code> for HTTPS)</td></tr>
+        <tr><td>Local port</td><td>Free port on <em>your</em> machine, e.g. <code>15432</code> — you connect your client here</td></tr>
+        <tr><td>Description</td><td>Optional note</td></tr>
+      </table>
+
+      <p>
+        With the example above, pointing your database client at
+        <code>localhost:15432</code> reaches <code>db.internal.local:5432</code> through the bastion.
+        The profile is saved automatically so next time it's one right-click away. If a tunnel
+        drops unexpectedly (e.g. network blip) the app <strong>reconnects it automatically</strong>.
+      </p>
+      <div class="warning">
+        Login happens automatically if the profile's token has expired — but if the SSO session
+        itself needs a browser sign-in, complete it in the browser window that opens and the
+        tunnel proceeds.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="tunnel-profiles">
+      <h2>Saved Tunnel Profiles</h2>
+      <p>
+        <strong>File → Tunnel Profiles…</strong> opens the manager where every saved connection is
+        listed and can be reused, edited, or removed.
+      </p>
+      <img class="shot" src="screenshots/07_tunnel_profiles_dialog.png" alt="Tunnel Profiles manager">
+      <p class="caption">Tunnel Profiles manager — New / Edit / Open Tunnel / Delete.</p>
+
+      <ul>
+        <li><strong>New</strong> — create a profile (see field table above)</li>
+        <li><strong>Edit</strong> — change any field of the selected profile</li>
+        <li><strong>Open Tunnel</strong> — connect immediately through the saved settings</li>
+        <li><strong>Delete</strong> — remove the profile (connection metadata only — never credentials)</li>
+      </ul>
+      <p>
+        Profiles are stored in <code>~/.aws-tunnel/settings.json</code> and survive app
+        updates. Nothing sensitive is stored: only host names, ports, and profile names.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="monitoring">
+      <h2>Monitoring &amp; Stopping Tunnels</h2>
+      <p>
+        The <strong>Active Tunnels</strong> panel at the bottom of the main window shows everything
+        currently open, with a live <em>uptime</em> clock.
+      </p>
+      <img class="shot" src="screenshots/08_active_tunnels.png" alt="Active Tunnels panel with a live tunnel">
+      <p class="caption">Active Tunnels — select a row and press Disconnect to stop it.</p>
+
+      <table>
+        <tr><th>Column</th><th>Meaning</th></tr>
+        <tr><td>Bastion</td><td>Jump host the tunnel routes through</td></tr>
+        <tr><td>Target</td><td><code>host:port</code> being reached on the remote side</td></tr>
+        <tr><td>Local Port</td><td>Your machine's endpoint for the tunnel (client connects here)</td></tr>
+        <tr><td>Method</td><td><code>SSM</code> (port forwarding) or <code>SSM SESSION</code> (interactive terminal)</td></tr>
+        <tr><td>Uptime</td><td>Time since the tunnel started</td></tr>
+      </table>
+
+      <h3>Stopping a tunnel</h3>
+      <ol class="steps">
+        <li>Select the tunnel row.</li>
+        <li>Click <strong>Disconnect</strong>.</li>
+      </ol>
+      <p>
+        Tunnels also close cleanly when you quit the app from the tray or File menu — nothing is
+        left running. If a tunnel dies on its own and it belongs to a saved tunnel profile, the app
+        reconnects it automatically (unless it failed immediately due to a permission or
+        configuration error — those are reported instead).
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="terminal">
+      <h2>Terminal Sessions</h2>
+      <p>
+        Besides port forwarding you can open an <strong>interactive shell</strong> on any bastion
+        whose SSM Agent is online:
+      </p>
+      <ol class="steps">
+        <li>Select the profile and the bastion row.</li>
+        <li>Right-click → <strong>Start Terminal</strong>.</li>
+        <li>A Session Manager console window opens on the instance.</li>
+      </ol>
+      <p>
+        The session is tracked in the Active Tunnels panel (method <code>SSM SESSION</code>) and can
+        be stopped like any tunnel. This requires no SSH keys either — it uses the same SSM
+        channel.
+      </p>
+      <div class="warning">
+        If the SSM Agent shows <strong>Offline</strong>, Start Terminal and tunnel connections to
+        that instance will fail. Verify the agent is running on the instance (or ask your AWS
+        administrator).
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="preferences">
+      <h2>Preferences</h2>
+      <p>Open <strong>File → Preferences…</strong> to tune two behaviors:</p>
+      <img class="shot" src="screenshots/09_preferences.png" alt="Preferences dialog">
+      <p class="caption">Preferences — profile refresh interval and minimize-to-tray behavior.</p>
+
+      <table>
+        <tr><th>Setting</th><th>Effect</th></tr>
+        <tr>
+          <td>Refresh profile status every(minutes):</td>
+          <td>How often the Profiles panel re-checks SSO tokens: 1, 5 (default), or 10 minutes.</td>
+        </tr>
+        <tr>
+          <td>Minimize to system tray when closing</td>
+          <td>ON (default): closing the window hides it to the tray and tunnels keep running.<br>
+              OFF: closing the window quits the app.</td>
+        </tr>
+      </table>
+      <p>Your window position is remembered automatically and restored on the next launch.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="tray">
+      <h2>System Tray</h2>
+      <p>
+        The app places an icon in the system tray (menu bar on macOS):
+      </p>
+      <ul>
+        <li><strong>Show</strong> — bring the window back (default action when the icon is clicked)</li>
+        <li><strong>Quit</strong> — exit the app; all open tunnels are closed cleanly first</li>
+      </ul>
+      <p>
+        With <em>minimize to tray</em> enabled (default), closing the window only hides it — your
+        tunnels and token refresh keep working in the background. The Linux/Unix tray uses the
+        GTK/AppIndicator or Xorg backend; a desktop environment with a system tray is required.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="data">
+      <h2>Data, Logs &amp; Security</h2>
+      <table>
+        <tr><th>Location</th><th>Contents</th></tr>
+        <tr>
+          <td><code>~/.aws-tunnel/settings.json</code></td>
+          <td>App settings and saved tunnel profiles (connection metadata only). If the file is ever corrupt, it is backed up to <code>settings.json.bak</code> and defaults are used.</td>
+        </tr>
+        <tr>
+          <td><code>~/.aws-tunnel/logs/</code></td>
+          <td>Rolling log files — every action (login, discovery, tunnel start/stop) is recorded. Reach this folder quickly via <strong>Help → Open Logs Folder</strong>.</td>
+        </tr>
+        <tr>
+          <td><code>~/.aws/config</code></td>
+          <td>Your AWS profiles — written only when you create/delete profiles, exactly like the AWS CLI does.</td>
+        </tr>
+        <tr>
+          <td><code>~/.aws/sso/cache</code></td>
+          <td>SSO tokens — owned entirely by the AWS CLI. The app only <em>reads</em> expiry times to show Connected/Disconnected status.</td>
+        </tr>
+      </table>
+      <div class="note">
+        <strong>Security principle:</strong> the app never stores, transmits, or displays
+        credentials or tokens. Tunnel profiles contain hostnames and ports only.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="troubleshooting">
+      <h2>Troubleshooting</h2>
+
+      <h3>Where are the logs?</h3>
+      <p>
+        <strong>Help → Open Logs Folder</strong> (or <code>~/.aws-tunnel/logs/</code>).
+        Run <code>python main.py --debug</code> for console output as well.
+      </p>
+
+      <h3>Common issues</h3>
+      <table>
+        <tr><th>Symptom</th><th>Likely cause &amp; fix</th></tr>
+        <tr>
+          <td>Login fails or profile shows Disconnected</td>
+          <td>The SSO token expired. Click <strong>Login</strong> and approve the browser prompt. Check that the start URL and SSO region from the wizard are correct.</td>
+        </tr>
+        <tr>
+          <td>"Discovery failed" when listing bastions</td>
+          <td>The role lacks <code>ec2:DescribeInstances</code> / <code>ssm:DescribeInstanceInformation</code>, or you're offline. Check the log for the exact AWS error.</td>
+        </tr>
+        <tr>
+          <td>Tunnel fails to start with an access error</td>
+          <td>The role must allow <code>ssm:StartSession</code> on the bastion <em>and</em> on the document <code>AWS-StartPortForwardingSessionToRemoteHost</code>. Ask your AWS administrator to attach the scoped policy.</td>
+        </tr>
+        <tr>
+          <td>"SSM Agent is not reporting online"</td>
+          <td>The bastion's SSM agent isn't running or can't reach the SSM service. Start it on the instance or pick another bastion.</td>
+        </tr>
+        <tr>
+          <td>Session Manager plugin errors</td>
+          <td>The <strong>session-manager-plugin</strong> isn't installed. Install it from AWS's documentation for your OS, then retry.</td>
+        </tr>
+        <tr>
+          <td>Tunnel died mid-work</td>
+          <td>If the underlying session expired, the app reconnects automatically. Permanent errors (permissions, unknown host) are surfaced as a dialog instead — fix the cause and reconnect manually.</td>
+        </tr>
+        <tr>
+          <td>Settings seem reset</td>
+          <td>The settings file was unreadable; check <code>settings.json.bak</code> next to it for the previous contents.</td>
+        </tr>
+        <tr>
+          <td>No tray icon on Linux</td>
+          <td>A desktop environment with a tray/AppIndicator is required. On Debian/Ubuntu install <code>python3-tk</code> and AppIndicator/GI libraries (e.g. <code>gir1.2-ayatanaappindicator3-0.1</code>).</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="faq">
+      <h2>FAQ</h2>
+
+      <h3>Is my traffic or my credentials visible to this app?</h3>
+      <p>
+        No. Tunnels are plain <code>aws ssm start-session</code> processes driven by the AWS CLI —
+        encryption and authentication are handled by AWS. The app stores no secrets; it only reads
+        token expiry times to show status.
+      </p>
+
+      <h3>Why SSM instead of SSH?</h3>
+      <p>
+        SSM port forwarding needs no SSH keys, no inbound port 22, and uses your existing SSO
+        identity — it is auditable through AWS Session Manager. A classic SSH tunnel module exists
+        in the codebase as a fallback, but it is not wired into the GUI yet.
+      </p>
+
+      <h3>Can I use the same tunnel from several tools at once?</h3>
+      <p>
+        Yes — any number of clients can connect to the same local port while the tunnel is open.
+        Open additional tunnels on different local ports in parallel.
+      </p>
+
+      <h3>What platforms are supported?</h3>
+      <p>
+        Windows, macOS, and Linux desktops. Binaries are built per platform with PyInstaller
+        (the build must run on the target OS). The AWS CLI and Session Manager plugin install
+        separately per OS.
+      </p>
+
+      <h3>How do I move my setup to another machine?</h3>
+      <p>
+        Copy <code>~/.aws-tunnel/settings.json</code> (tunnel profiles and preferences).
+        Your AWS profiles and SSO tokens live with the AWS CLI in <code>~/.aws/</code> and are
+        re-established by logging in on the new machine.
+      </p>
+
+      <footer>
+        AWS Tunnel — User Guide. Generated documentation; screenshots may show sample data.
+      </footer>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

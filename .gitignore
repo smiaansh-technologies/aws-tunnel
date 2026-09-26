@@ -1,0 +1,108 @@
+# Based on GitHub's official Python .gitignore template:
+# https://github.com/github/gitignore/blob/main/Python.gitignore
+# Trimmed of framework sections this project doesn't use (Django, Flask,
+# Scrapy, Celery, SageMath, Jupyter, Sphinx), extended with security
+# entries and project-specific artifacts.
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Build artifacts are ignored. NOTE: the project's spec file is
+#  intentionally *not* ignored — aws-tunnel.spec is versioned
+#  because it pins console=False (GUI app, no stray terminal window).
+*.manifest
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Type checkers / linters
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+cython_debug/
+
+# Virtual environments
+.env
+.env.*
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Secrets / key material — never commit these
+*.pem
+*.key
+*.ppk
+*.p12
+*.pfx
+*.jks
+credentials*.json
+service-account*.json
+*_local.json
+*.local.ps1
+
+# App runtime data (normally lives in ~/.aws-tunnel, ignored defensively)
+settings.json
+settings.json.bak
+logs/
+*.log
+
+# OS files (Windows / macOS / Linux)
+.DS_Store
+Desktop.ini
+Thumbs.db
+$RECYCLE.BIN/
+
+# Editors / IDEs
+.idea/
+.vscode/
+.trae/
+*.swp
+*.swo
