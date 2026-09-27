@@ -121,18 +121,17 @@ not cross-compile, so each platform's binary must be built on that
 platform:
 
 ```bash
-pip install pyinstaller
-pyinstaller --onefile --windowed --name aws-tunnel --add-data "docs;docs" main.py
+uv run --group dev pyinstaller --clean aws-tunnel.spec
 ```
 
-On macOS/Linux use a colon in the `--add-data` option instead of a
-semicolon (`--add-data "docs:docs"`). The bundled `docs/` folder is what
-makes the **Help > User Guide** menu work in the packaged app.
+The versioned spec pins `console=False` (no stray console window) and
+bundles `docs/` so **Help > User Guide** works in the packaged app.
+GitHub Actions (`.github/workflows/release.yml`) builds Windows, Linux,
+and macOS binaries on each `vX.Y.Z` tag.
 
 - **Windows** — produces `dist/aws-tunnel.exe`.
-- **macOS** — produces a single executable in `dist/`. For a proper
-  `.app` bundle, use `pyinstaller --windowed --name aws-tunnel
-  main.py` (onedir) instead.
+- **macOS** — produces a single executable in `dist/` (arm64 on Apple
+  Silicon, x86_64 on Intel).
 - **Linux** — produces an ELF executable in `dist/`; the tray icon
   needs a desktop environment with AppIndicator/Xorg support at runtime.
 

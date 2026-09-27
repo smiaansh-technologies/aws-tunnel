@@ -9,6 +9,18 @@ at `https://github.com/<owner>/aws-tunnel/releases/tag/vX.Y.Z`.
 
 ---
 
+## [1.2.1] — 2026-09-27
+
+### Fixed
+
+- **GitHub Actions Release workflow** now produces Linux and macOS binaries:
+  - Linux apt install no longer fails on Ubuntu 24.04 (`libasound2` → `libasound2t64`, AppIndicator → Ayatana packages).
+  - macOS jobs pin official CPython 3.12 (with Tcl/Tk) so GUI tests and PyInstaller no longer pick Homebrew 3.14 without `_tkinter`.
+  - Replaced invalid `macos-15-arm64` runner (queued forever) with `macos-latest` (arm64) + `macos-15-intel` (x86_64).
+  - All platforms now build from the versioned `aws-tunnel.spec`.
+
+---
+
 ## [Unreleased]
 
 ### Renamed
