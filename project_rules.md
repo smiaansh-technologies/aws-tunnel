@@ -21,6 +21,29 @@
   preferred when possible (e.g. `urllib` over `requests` for a single
   JSON endpoint).
 
+### 0.1 PACKAGE MANAGEMENT — `uv` ONLY
+
+This project is managed with [`uv`](https://docs.astral.sh/uv/). There is
+**no** `requirements.txt` / `requirements-dev.txt` and **no** manually
+activated virtualenv. Do not reintroduce either.
+
+| Task | Command |
+|---|---|
+| Install runtime + dev deps | `uv sync` |
+| Add the test group | `uv sync --group test` |
+| Run the app | `uv run python main.py` |
+| Run the tests | `uv run --group test pytest -q` |
+| Build the binary | `uv run --group dev pyinstaller --clean aws-tunnel.spec` |
+| Regenerate screenshots | `uv run --group dev python scripts/capture_screenshots.py` |
+| Rebuild the PDF | `uv run --group test python scripts/build_docs_pdf.py` |
+
+- Dependency declarations live in `pyproject.toml`; `uv.lock` is
+  committed and must be regenerated (`uv lock`) whenever
+  `pyproject.toml` dependencies change.
+- `uv run --group <g>` is the ONLY sanctioned way to invoke project
+  tooling. Do not hand-edit `.venv/` or call `pip install`.
+- `.venv/` is uv's environment — never commit it (see §2.3).
+
 ---
 
 ## 1. VERSIONING & CHANGELOG — MANDATORY ON EVERY CODE MODIFICATION
@@ -104,7 +127,7 @@ If you need to add example data (fixtures, sample scripts, test data):
 
 The repo `.gitignore` is authoritative. NEVER commit:
 
-- `.venv/`, `venv/`, `env/` (any virtualenv)
+- `.venv/` (uv's environment), `venv/`, `env/` (any other virtualenv)
 - `build/`, `dist/`, `*.spec~`, PyInstaller work directories
 - `aws-tunnel.exe`, `*.exe`, `*.app`, `*.so`, `*.dylib`, `*.pyd`
 - `.pytest_cache/`, `.coverage`, `coverage.xml`, `.mypy_cache/`
@@ -173,8 +196,8 @@ finalizing:
   exempted from unit tests but the logic it wires to is not.
 - Full test suite MUST pass before finalizing:
   ```
-  .venv\Scripts\python.exe -m pytest -q      # Windows
-  ./.venv/bin/python -m pytest -q            # macOS/Linux
+  uv sync --group test
+  uv run --group test pytest -q
   ```
 - If a failure is unrelated to your change, document why in your
   response; do not silently skip failing tests.
@@ -220,16 +243,20 @@ Before writing a new utility function, search the repo for prior art:
      Guide works in the packaged app).
 - If you ever edit `aws-tunnel.spec`:
   1. After editing, verify it parses as valid Python (the spec IS
-     executable Python): `.venv\Scripts\python.exe -c "exec(open('aws-tunnel.spec').read())"`
-     (it will fail on PyInstaller-internal names; that's fine — what
-     matters is no `SyntaxError`).
+     executable Python):
+     `uv run --group dev python -c "import ast; ast.parse(open('aws-tunnel.spec').read())"`
+     (this is a syntax check only, so it succeeds; the spec's real
+     execution needs PyInstaller's injected names).
   2. Confirm the `Analysis(… datas=[('docs','docs')], …)` line is
      still present and correctly references the `docs/` folder.
   3. Confirm `console=False` is still set on the EXE line.
-- Manual build command (kept in README for reference):
+- Manual build command (always build from the spec, never ad-hoc flags):
   ```
-  pyinstaller --onefile --windowed --name aws-tunnel --add-data "docs;docs" main.py
+  uv run --group dev pyinstaller --clean aws-tunnel.spec
   ```
+  On every OS: the spec's `datas=[('docs','docs')]` tuple is
+  platform-safe, so the same command produces `dist/aws-tunnel.exe`
+  (Windows) or `dist/aws-tunnel` (macOS/Linux).
 
 ---
 
@@ -296,7 +323,7 @@ item that applies. Mark items N/A with reason:
 
 - [ ] `APP_VERSION` bumped per SemVer if code changed (not docs-only)
 - [ ] `CHANGELOG.md` entry added under `## X.Y.Z`
-- [ ] Full test suite passes (`.venv\Scripts\python.exe -m pytest -q` → green)
+- [ ] Full test suite passes (`uv run --group test pytest -q` → green)
 - [ ] No new lint/type errors (if project ever adds mypy/ruff — run those too)
 - [ ] No real AWS IDs, credentials, keys, instance IDs, or hostnames
       anywhere in versioned files (grep-scanned)

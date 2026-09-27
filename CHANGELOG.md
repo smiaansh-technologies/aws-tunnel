@@ -9,6 +9,29 @@ at `https://github.com/<owner>/aws-tunnel/releases/tag/vX.Y.Z`.
 
 ---
 
+## [1.2.2] — 2026-09-27
+
+### Removed
+
+- **Legacy pip / virtualenv workflow** — the project is managed solely by
+  `uv`. Deleted `requirements.txt` and `requirements-dev.txt`;
+  `pyproject.toml` + `uv.lock` are now the only dependency source of
+  truth.
+
+### Changed
+
+- **README, `docs/user_guide.html`, `scripts/build_docs_pdf.py`, and
+  `project_rules.md`** now document the `uv` commands:
+  - `uv sync` / `uv sync --group test`
+  - `uv run python main.py`
+  - `uv run --group test pytest -q`
+  - `uv run --group dev pyinstaller --clean aws-tunnel.spec`
+- `project_rules.md` gained §0.1 declaring `uv` the only sanctioned way
+  to run project tooling.
+- `.gitignore` documents that `.venv/` is uv's environment.
+
+---
+
 ## [1.2.1] — 2026-09-27
 
 ### Fixed

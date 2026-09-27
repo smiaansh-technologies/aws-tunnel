@@ -5,9 +5,9 @@ Playwright (Chromium).
 Output: docs/AWS-Tunnel-User-Guide.pdf
 
 Run from the project root:
-    pip install playwright          # dev dependency, never bundled in the app
-    playwright install chromium     # one-time browser download
-    python scripts/build_docs_pdf.py
+    uv sync --group test
+    uv run --group test playwright install chromium   # one-time browser download
+    uv run --group test python scripts/build_docs_pdf.py
 """
 
 from __future__ import annotations

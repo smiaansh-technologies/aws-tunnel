@@ -266,11 +266,15 @@
       </div>
 
       <h3>Run from source</h3>
+      <p>
+        This project uses <a href="https://docs.astral.sh/uv/">uv</a> for dependency
+        management, so there is no virtualenv to activate and no
+        <code>requirements.txt</code> &mdash; dependencies and dependency groups live
+        in <code>pyproject.toml</code>.
+      </p>
 <pre>
-python -m venv .venv
-source .venv/bin/activate        # .venv\Scripts\activate on Windows
-pip install -r requirements.txt
-python main.py                   # add --debug to also log to the console
+uv sync                            # install dependencies
+uv run python main.py             # add --debug to also log to the console
 </pre>
 
       <h3>Run the packaged executable</h3>
