@@ -12,15 +12,22 @@ def test_start_builds_safe_port_forward_command():
     command = popen.call_args.args[0]
     assert command[:6] == ["aws", "ssm", "start-session", "--profile", "dev", "--target"]
     assert 'host=["db.internal"]' in command[-1]
-    assert popen.call_args.kwargs["creationflags"] == (
-        ssm_tunnel.subprocess.CREATE_NEW_PROCESS_GROUP | ssm_tunnel.subprocess.CREATE_NO_WINDOW
-    )
+    if ssm_tunnel.platform.system() == "Windows":
+        assert popen.call_args.kwargs["creationflags"] == (
+            ssm_tunnel.subprocess.CREATE_NEW_PROCESS_GROUP | ssm_tunnel.subprocess.CREATE_NO_WINDOW
+        )
+    else:
+        assert popen.call_args.kwargs["start_new_session"] is True
 
 
 def test_background_launch_has_no_console_window():
     """The port-forward tunnel must not open a visible console window."""
     with patch("tunnel.ssm_tunnel.subprocess.Popen", return_value=MagicMock()) as popen:
         ssm_tunnel.start("dev", "i-12345678", "db.internal", 5432, 15432)
+    if ssm_tunnel.platform.system() != "Windows":
+        # POSIX has no console windows; the child just gets its own session.
+        assert popen.call_args.kwargs["start_new_session"] is True
+        return
     flags = popen.call_args.kwargs["creationflags"]
     assert flags & ssm_tunnel.subprocess.CREATE_NO_WINDOW
     assert not flags & ssm_tunnel.subprocess.CREATE_NEW_CONSOLE
