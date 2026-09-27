@@ -35,10 +35,25 @@ def test_background_launch_has_no_console_window():
 
 def test_interactive_session_gets_new_console():
     """The interactive shell session intentionally opens a console window."""
-    with patch("tunnel.ssm_tunnel.platform.system", return_value="Windows"):
+    # The CREATE_* constants only exist on Windows, so inject the real
+    # Windows values to exercise the Windows branch from any platform.
+    windows_flags = {
+        "CREATE_NEW_CONSOLE": 0x10,
+        "CREATE_NEW_PROCESS_GROUP": 0x200,
+        "CREATE_NO_WINDOW": 0x08000000,
+    }
+    with patch("tunnel.ssm_tunnel.platform.system", return_value="Windows"), \
+         patch.multiple(
+             ssm_tunnel.subprocess,
+             CREATE_NEW_CONSOLE=windows_flags["CREATE_NEW_CONSOLE"],
+             CREATE_NEW_PROCESS_GROUP=windows_flags["CREATE_NEW_PROCESS_GROUP"],
+             CREATE_NO_WINDOW=windows_flags["CREATE_NO_WINDOW"],
+             create=True,
+         ):
         kwargs = ssm_tunnel._process_start_kwargs(new_console=True)
-    assert kwargs["creationflags"] & ssm_tunnel.subprocess.CREATE_NEW_CONSOLE
-    assert not kwargs["creationflags"] & ssm_tunnel.subprocess.CREATE_NO_WINDOW
+    flags = kwargs["creationflags"]
+    assert flags & windows_flags["CREATE_NEW_CONSOLE"]
+    assert not flags & windows_flags["CREATE_NO_WINDOW"]
 
 
 @pytest.mark.parametrize("kwargs", [
