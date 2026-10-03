@@ -9,6 +9,31 @@ at `https://github.com/<owner>/aws-tunnel/releases/tag/vX.Y.Z`.
 
 ---
 
+## [1.4.1] — 2026-10-03
+
+### Fixed
+
+- **The tray icon could break if `assets/logo.png` was unreadable.**
+  `load_icon()` returned `None`, and pystray does not validate its `icon`
+  argument — it hands whatever it gets straight to `PIL.Image.save()`. The
+  result was an `AttributeError: 'NoneType' object has no attribute 'save'`
+  raised later on the tray thread (not a `TypeError` at construction, as
+  assumed). A frozen build missing `assets/` would therefore lose its tray
+  icon entirely. `load_icon()` now always returns an image, falling back to
+  a drawn placeholder tile.
+- **`assets/logo.svg` had drifted from `assets/logo.png`.** The SVG master
+  was an older, rejected design while the committed PNG held the approved
+  shield-and-connector artwork, so anyone regenerating the PNG from the SVG
+  would have silently reverted the icon. The SVG is restored to match the
+  PNG — verified by regenerating and comparing SHA-256 (byte-identical).
+
+### Changed
+
+- Added the missing trailing newline to `assets/logo.svg`, `gui/icons.py`,
+  and `scripts/render_logo_png.py`.
+
+---
+
 ## [1.4.0] — 2026-10-03
 
 ### Added

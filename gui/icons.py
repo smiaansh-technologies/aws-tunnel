@@ -11,21 +11,48 @@ from __future__ import annotations
 import logging
 import tkinter as tk
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from config import APP_ICON
 
 log = logging.getLogger(__name__)
 
 
-def load_icon(size: int) -> Image.Image | None:
-    """Return the app icon as a square RGBA image, or None if it's missing."""
+def _placeholder_icon(size: int) -> Image.Image:
+    """Draw a stand-in tile for when the icon asset can't be read.
+
+    pystray serialises whatever it is handed straight to Pillow
+    (``image.save(...)``), so handing it ``None`` raises an AttributeError
+    on the tray thread rather than at construction. Always giving it a real
+    image keeps a broken/missing asset from taking the tray down with it.
+    """
+    image = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.rounded_rectangle(
+        (0, 0, size - 1, size - 1), radius=size // 6, fill=(255, 153, 0, 255)
+    )
+    # Centre the letter without relying on font metrics varying by platform.
+    left, top, right, bottom = draw.textbbox((0, 0), "S")
+    draw.text(
+        ((size - (right - left)) / 2 - left, (size - (bottom - top)) / 2 - top),
+        "S",
+        fill=(255, 255, 255, 255),
+    )
+    return image
+
+
+def load_icon(size: int) -> Image.Image:
+    """Return the app icon as a square RGBA image.
+
+    Falls back to a drawn placeholder if the asset is missing or corrupt, so
+    callers never have to handle ``None``.
+    """
     try:
         with Image.open(APP_ICON) as source:
             return source.convert("RGBA").resize((size, size), Image.LANCZOS)
     except OSError:
         log.error("App icon not readable at %s", APP_ICON)
-        return None
+        return _placeholder_icon(size)
 
 
 def apply_window_icon(root: tk.Tk) -> bool:

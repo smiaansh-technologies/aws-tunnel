@@ -1,5 +1,7 @@
+import tempfile
 import tkinter as tk
 from datetime import datetime, timedelta
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -71,9 +73,22 @@ def test_load_icon_returns_square_rgba_image():
     assert image.mode == "RGBA"
 
 
-def test_load_icon_returns_none_when_asset_is_missing(monkeypatch, tmp_path):
+def test_load_icon_falls_back_to_a_placeholder_when_asset_is_missing(monkeypatch, tmp_path):
+    """pystray calls image.save() on whatever it gets, so None would crash."""
     monkeypatch.setattr(icons, "APP_ICON", tmp_path / "nope.png")
-    assert icons.load_icon(32) is None
+    image = icons.load_icon(32)
+    assert image is not None
+    assert image.size == (32, 32)
+    assert image.mode == "RGBA"
+
+
+def test_load_icon_result_is_accepted_by_pystray(monkeypatch, tmp_path):
+    """Regression: a missing asset must not hand pystray a None icon."""
+    monkeypatch.setattr(icons, "APP_ICON", tmp_path / "nope.png")
+    image = icons.load_icon(32)
+    with tempfile.TemporaryDirectory() as tmp:
+        # This is precisely what pystray's serialized_image() does.
+        image.save(Path(tmp) / "icon.ico", format="ICO")
 
 
 def test_apply_window_icon_sets_the_title_bar_icon(root):

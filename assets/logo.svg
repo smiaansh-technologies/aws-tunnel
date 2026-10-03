@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none" role="img" aria-labelledby="logoTitle logoDesc">
   <title id="logoTitle">AWS Tunnel</title>
-  <desc id="logoDesc">An arrow passing through a gateway portal, representing port forwarding through a bastion host.</desc>
+  <desc id="logoDesc">A shield containing two joined connectors, representing a bastion host linking two endpoints.</desc>
 
   <defs>
     <linearGradient id="awsTunnelBg" x1="0" y1="0" x2="0.35" y2="1">
@@ -12,16 +12,17 @@
 
   <rect x="16" y="16" width="480" height="480" rx="116" fill="url(#awsTunnelBg)"/>
 
-  <!-- gateway portal: rounded square, open on the right -->
+  <!-- bastion host shield -->
   <path
-    d="M328 200A60 60 0 0 0 268 140H148A60 60 0 0 0 88 200V312A60 60 0 0 0 148 372H268A60 60 0 0 0 328 312"
+    d="M256 89L396 141V256C396 340 339 397 256 422C173 397 116 340 116 256V141Z"
     stroke="#FFFFFF"
-    stroke-width="44"
-    stroke-linecap="butt"
+    stroke-width="40"
     stroke-linejoin="round"
   />
 
-  <!-- traffic entering the portal and breaking out the far side -->
-  <path d="M172 256H372" stroke="#FFFFFF" stroke-width="52" stroke-linecap="round"/>
-  <path d="M348 182L448 256L348 330Z" fill="#FFFFFF" stroke-linejoin="round"/>
+  <!-- connector: two socket halves joined across the middle -->
+  <path d="M240 194h-40a60 60 0 0 0 0 120h40z" fill="#FFFFFF"/>
+  <path d="M272 194h40a60 60 0 0 1 0 120h-40z" fill="#FFFFFF"/>
+  <rect x="234" y="240" width="44" height="28" fill="#FFFFFF"/>
+  <rect x="248" y="226" width="16" height="56" fill="#FFFFFF"/>
 </svg>

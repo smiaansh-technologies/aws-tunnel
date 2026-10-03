@@ -11,7 +11,7 @@ py-modules = ["config", "logging_setup", "main", "process_utils", "update_checke
 
 [project]
 name = "aws-tunnel"
-version = "1.4.0"
+version = "1.4.1"
 description = "Tkinter GUI for managing AWS SSM/SSH port-forwarding tunnels through EC2 bastions"
 readme = "README.md"
 requires-python = ">=3.11"
