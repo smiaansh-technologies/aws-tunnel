@@ -9,6 +9,25 @@ at `https://github.com/<owner>/aws-tunnel/releases/tag/vX.Y.Z`.
 
 ---
 
+## [1.3.1] — 2026-09-27
+
+### Fixed
+
+- **The minimize button now hides the window to the system tray** instead
+  of only iconifying it. Previously clicking minimize left the window
+  sitting in the taskbar, while only the close button parked the app in
+  the tray. Both buttons now behave the same when `minimize_to_tray` is
+  enabled, and the withdraw is deferred with `after_idle` so the window
+  cannot get stuck in the iconic state on Windows.
+
+### Changed
+
+- The Preferences checkbox is now labelled **"Minimize to system tray
+  instead of taskbar"** to match the behaviour it controls.
+- README and user guide describe the minimize + close tray behaviour.
+
+---
+
 ## [1.3.0] — 2026-09-27
 
 ### Removed

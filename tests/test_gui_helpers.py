@@ -6,6 +6,7 @@ import pytest
 
 from gui import clipboard, tray
 from gui.main_window import MainWindow
+from main import main, minimize_to_tray
 from tunnel.manager import ActiveTunnel
 
 
@@ -149,3 +150,39 @@ def test_profiles_section_is_labelled_aws_profiles(main_window):
     assert main_window.profile_tree.winfo_parent() is not None
     frame = main_window.profile_tree.master
     assert frame.cget("text") == "AWS Profiles"
+
+
+def test_minimize_button_hides_window_to_tray(root):
+    """Clicking minimize must withdraw the window instead of leaving a taskbar button."""
+    window = tk.Toplevel(root)
+    root.update()
+    window.iconify()
+    root.update()
+    assert window.state() == "iconic"
+
+    minimize_to_tray(window)
+    root.update()  # let after_idle run
+
+    assert window.state() == "withdrawn"
+    window.destroy()
+
+
+def test_withdraw_is_skipped_when_window_is_not_iconic(root):
+    """A normal unmap (e.g. restoring from tray) must not re-withdraw the window."""
+    window = tk.Toplevel(root)
+    root.update()
+    assert window.state() == "normal"
+
+    minimize_to_tray(window)
+    root.update()
+
+    assert window.state() == "normal"
+    window.destroy()
+
+
+def test_unmap_binding_is_registered_for_minimize_to_tray(main_window):
+    """main() binds <Unmap> so the minimize button routes through the tray handler."""
+    import inspect
+
+    source = inspect.getsource(main)
+    assert 'root.bind("<Unmap>"' in source

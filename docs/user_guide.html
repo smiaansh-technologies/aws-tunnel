@@ -550,9 +550,10 @@ uv run python main.py             # add --debug to also log to the console
           <td>How often the Profiles panel re-checks SSO tokens: 1, 5 (default), or 10 minutes.</td>
         </tr>
         <tr>
-          <td>Minimize to system tray when closing</td>
-          <td>ON (default): closing the window hides it to the tray and tunnels keep running.<br>
-              OFF: closing the window quits the app.</td>
+          <td>Minimize to system tray instead of taskbar</td>
+          <td>ON (default): the <strong>minimize</strong> and <strong>close</strong> buttons both
+              hide the window to the tray and tunnels keep running.<br>
+              OFF: closing the window quits the app, and minimize behaves normally.</td>
         </tr>
       </table>
       <p>Your window position is remembered automatically and restored on the next launch.</p>
@@ -569,8 +570,10 @@ uv run python main.py             # add --debug to also log to the console
         <li><strong>Quit</strong> — exit the app; all open tunnels are closed cleanly first</li>
       </ul>
       <p>
-        With <em>minimize to tray</em> enabled (default), closing the window only hides it — your
-        tunnels and token refresh keep working in the background. The Linux/Unix tray uses the
+        With <em>minimize to tray</em> enabled (default), both the <strong>minimize</strong> and
+        <strong>close</strong> buttons hide the window to the tray instead of leaving it in the
+        taskbar — your tunnels and token refresh keep working in the background. Use the tray menu's
+        <strong>Show</strong> to bring the window back. The Linux/Unix tray uses the
         GTK/AppIndicator or Xorg backend; a desktop environment with a system tray is required.
       </p>
     </section>

@@ -44,10 +44,12 @@ uv run python main.py --debug    # also logs to the console
 On first run with no SSO profiles, a setup wizard walks you through
 creating one before the main window appears.
 
-By default, closing the window minimizes it to the system tray; use the
-tray menu's "Quit" to actually exit (this also cleanly stops any open
-tunnels). This is controlled by the `minimize_to_tray` setting — when
-disabled, closing the window quits the app.
+By default, both the minimize and close buttons send the window to the
+system tray, so it disappears from the taskbar and your tunnels keep
+running; use the tray menu's "Show" to bring it back, or "Quit" to
+actually exit (this also cleanly stops any open tunnels). This is
+controlled by the `minimize_to_tray` setting — when disabled, closing
+the window quits the app and minimize behaves normally.
 
 ## Help & user documentation
 
@@ -158,8 +160,9 @@ run with defaults) and cover:
 - `preferred_tunnel_method` — `"ssm"` (default, recommended) or `"ssh"`.
 - `profile_refresh_minutes` — how often profile connection status is refreshed
   (`1`, `5` default, or `10` minutes; configurable from File > Preferences).
-- `minimize_to_tray` — whether closing the window hides it to the system
-  tray (`true`, default) or quits the app; toggle in File > Preferences.
+- `minimize_to_tray` — whether the minimize and close buttons hide the
+  window to the system tray (`true`, default) or minimize normally and
+  quit on close; toggle in File > Preferences.
 - `update_check_interval` — how often the app automatically checks for
   updates on GitHub Releases (`"off"`, `"daily"`, `"weekly"` default,
   `"biweekly"`, `"monthly"`; configurable from File > Preferences).

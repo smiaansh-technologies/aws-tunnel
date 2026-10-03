@@ -26,6 +26,25 @@ import update_checker
 log = logging.getLogger(__name__)
 
 
+def minimize_to_tray(root: tk.Tk, event: tk.Event | None = None) -> None:
+    """Withdraw the window when the minimize button iconifies it.
+
+    Tk's minimize button only iconifies the window, which leaves it sitting
+    in the taskbar. To match the close button (which already hides to the
+    tray) we withdraw instead, so both buttons park the app in the tray.
+    The actual withdraw is deferred with ``after_idle`` because doing it
+    while ``<Unmap>`` is being dispatched can leave the window stuck in the
+    iconic state on Windows.
+    """
+    root.after_idle(_withdraw_if_iconic, root)
+
+
+def _withdraw_if_iconic(root: tk.Tk) -> None:
+    if root.state() == "iconic":
+        root.withdraw()
+        root.attributes("-alpha", 1.0)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="AWS Tunnel")
     parser.add_argument("--debug", action="store_true", help="also log to console")
@@ -67,7 +86,7 @@ def main() -> None:
         minimize_to_tray = tk.BooleanVar(value=main_window.settings.minimize_to_tray)
         ttk.Checkbutton(
             dialog,
-            text="Minimize to system tray when closing",
+            text="Minimize to system tray instead of taskbar",
             variable=minimize_to_tray,
         ).grid(row=1, column=0, columnspan=2, padx=12, pady=(0, 12), sticky="w")
 
@@ -343,10 +362,19 @@ def main() -> None:
 
         fade(1.0)
 
+    def on_window_unmap(event: tk.Event) -> None:
+        """Send the minimize button to the tray too, not just the close button."""
+        if event.widget is not root:
+            return
+        if main_window is None or not main_window.settings.minimize_to_tray:
+            return
+        minimize_to_tray(root, event)
+
     tray = TrayIcon(root, on_quit=quit_app)
     tray.start()
 
     root.protocol("WM_DELETE_WINDOW", hide_to_tray)
+    root.bind("<Unmap>", on_window_unmap, add="+")
 
     # First update-check tick runs right away; it only performs a network
     # request when the configured interval has elapsed (or on first run).
