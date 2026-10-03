@@ -18,7 +18,7 @@ def test_register_and_list_tunnel():
             profile_name="dev",
             instance_id="i-1234567890abcdef0",
             bastion_label="dev-bastion",
-            target_host="10.0.1.5",
+            target_host="[IP_ADDRESS]",
             target_port=5432,
             local_port=15432,
         )
@@ -27,6 +27,41 @@ def test_register_and_list_tunnel():
     assert len(tunnels) == 1
     assert tunnels[0].id == tunnel_id
     assert tunnels[0].local_port == 15432
+
+
+def test_saved_profile_name_is_recorded_on_the_tunnel():
+    """Active Tunnels shows the saved Tunnel Profile name in its first column."""
+    manager = TunnelManager()
+    fake_process = MagicMock()
+    fake_process.poll.return_value = None
+
+    with patch("tunnel.manager.ssm_tunnel.start", return_value=fake_process):
+        manager.start_ssm_tunnel(
+            profile_name="dev",
+            instance_id="i-abc",
+            bastion_label="dev-bastion",
+            target_host="db.internal",
+            target_port=5432,
+            local_port=15432,
+            profile_label="dev-postgres",
+        )
+
+    assert manager.list_tunnels()[0].profile_label == "dev-postgres"
+
+
+def test_adhoc_tunnel_has_no_profile_label():
+    """Tunnels opened without a saved profile leave the label unset."""
+    manager = TunnelManager()
+    fake_process = MagicMock()
+    fake_process.poll.return_value = None
+
+    with patch("tunnel.manager.ssm_tunnel.start", return_value=fake_process):
+        manager.start_ssm_tunnel(
+            profile_name="dev", instance_id="i-abc", bastion_label="b",
+            target_host="db.internal", target_port=80, local_port=8080,
+        )
+
+    assert manager.list_tunnels()[0].profile_label is None
 
 
 def test_stop_tunnel_removes_it():

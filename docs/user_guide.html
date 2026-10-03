@@ -187,7 +187,7 @@
       <a href="#getting-started">Getting Started</a>
       <a class="group">Working with the app</a>
       <a href="#first-run">First-Run Setup Wizard</a>
-      <a href="#profiles">AWS SSO Profiles</a>
+      <a href="#profiles">AWS Profiles</a>
       <a href="#bastions">Bastion Hosts</a>
       <a href="#tunnels">Opening Tunnels</a>
       <a href="#tunnel-profiles">Saved Tunnel Profiles</a>
@@ -326,9 +326,9 @@ uv run python main.py             # add --debug to also log to the console
 
     <!-- ============================================================ -->
     <section id="profiles">
-      <h2>AWS SSO Profiles</h2>
+      <h2>AWS Profiles</h2>
       <p>
-        The <strong>AWS SSO Profiles</strong> panel at the top of the main window lists every SSO
+        The <strong>AWS Profiles</strong> panel at the top of the main window lists every SSO
         profile found in <code>~/.aws/config</code>, refreshed automatically (interval configurable
         in Preferences).
       </p>
@@ -398,7 +398,7 @@ uv run python main.py             # add --debug to also log to the console
 
       <h3>Right-click menu</h3>
       <ul>
-        <li><strong>Connect Tunnel</strong> — open a saved tunnel profile through this bastion (see <a href="#tunnels">Opening Tunnels</a>)</li>
+        <li><strong>Connect Tunnel</strong> — opens the saved tunnel profiles manager to open a tunnel through this bastion (see <a href="#tunnels">Opening Tunnels</a>)</li>
         <li><strong>Start Terminal</strong> — interactive SSM shell on the instance (see <a href="#terminal">Terminal Sessions</a>)</li>
         <li><strong>Refresh Bastions</strong> — re-run discovery</li>
       </ul>
@@ -423,9 +423,9 @@ uv run python main.py             # add --debug to also log to the console
       <h3>The easy way — saved tunnel profiles</h3>
       <ol class="steps">
         <li>Log in to a profile and wait for bastions to appear.</li>
-        <li>Right-click a bastion → <strong>Connect Tunnel</strong>.</li>
-        <li>Pick one of your saved tunnel profiles → <strong>Connect</strong>.</li>
-        <li>The tunnel appears in the <strong>Active Tunnels</strong> panel within a second or two.</li>
+        <li>Right-click a bastion → <strong>Connect Tunnel</strong>, or use <strong>File → Tunnel Profiles…</strong>.</li>
+        <li>Select a saved tunnel profile and click <strong>Open Tunnel</strong>.</li>
+        <li>The tunnel appears in the <strong>Active Tunnels</strong> panel within a second or two, labelled with the profile name.</li>
       </ol>
 
       <h3>Creating a new tunnel profile</h3>
@@ -491,10 +491,11 @@ uv run python main.py             # add --debug to also log to the console
 
       <table>
         <tr><th>Column</th><th>Meaning</th></tr>
-        <tr><td>Bastion</td><td>Jump host the tunnel routes through</td></tr>
+        <tr><td>Tunnel Profile</td><td>Name of the saved tunnel profile the tunnel was opened from; an em dash (—) means it was opened ad hoc</td></tr>
         <tr><td>Target</td><td><code>host:port</code> being reached on the remote side</td></tr>
         <tr><td>Local Port</td><td>Your machine's endpoint for the tunnel (client connects here)</td></tr>
         <tr><td>Method</td><td><code>SSM</code> (port forwarding) or <code>SSM SESSION</code> (interactive terminal)</td></tr>
+        <tr><td>Bastion Host</td><td>Jump host the tunnel routes through</td></tr>
         <tr><td>Uptime</td><td>Time since the tunnel started</td></tr>
       </table>
 

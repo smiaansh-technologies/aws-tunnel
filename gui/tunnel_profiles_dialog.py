@@ -177,69 +177,6 @@ class TunnelProfilesDialog(tk.Toplevel):
             self._on_open_tunnel(profile)
 
 
-    class TunnelProfileSelectDialog(tk.Toplevel):
-        """Select a saved tunnel profile to connect."""
-
-        def __init__(
-            self,
-            parent: tk.Widget,
-            settings: Settings,
-            on_connect: Callable[[TunnelProfile], None],
-            on_manage: Callable[[], None],
-        ) -> None:
-            super().__init__(parent)
-            self.title("Connect Tunnel Profile")
-            self.resizable(False, False)
-            self.transient(parent)
-            self.grab_set()
-            self._settings = settings
-            self._on_connect = on_connect
-            self._on_manage = on_manage
-
-            ttk.Label(self, text="Select a tunnel profile:").grid(
-                row=0, column=0, padx=12, pady=(12, 4), sticky="w"
-            )
-            self._profile_list = tk.Listbox(self, height=8, width=48, exportselection=False)
-            self._profile_list.grid(row=1, column=0, padx=12, pady=4)
-            self._profile_list.bind("<Double-1>", lambda _event: self._connect())
-            for profile in settings.tunnel_profiles:
-                self._profile_list.insert(tk.END, f"{profile.name} - {profile.target_host}:{profile.target_port}")
-            if settings.tunnel_profiles:
-                self._profile_list.selection_set(0)
-
-            buttons = ttk.Frame(self)
-            buttons.grid(row=2, column=0, padx=12, pady=(4, 12), sticky="e")
-            ttk.Button(buttons, text="Tunnel Profiles", command=self._manage).pack(side="left", padx=4)
-            ttk.Button(buttons, text="Cancel", command=self.destroy).pack(side="right", padx=4)
-            ttk.Button(buttons, text="Connect", command=self._connect).pack(side="right", padx=4)
-            self.after_idle(lambda: self._center_over_parent(parent))
-
-        def _center_over_parent(self, parent: tk.Widget) -> None:
-            parent_window = parent.winfo_toplevel()
-            parent_window.update_idletasks()
-            self.update_idletasks()
-            width = self.winfo_reqwidth()
-            height = self.winfo_reqheight()
-            x = parent_window.winfo_rootx() + (parent_window.winfo_width() - width) // 2
-            y = parent_window.winfo_rooty() + (parent_window.winfo_height() - height) // 2
-            self.geometry(f"{width}x{height}+{max(x, 0)}+{max(y, 0)}")
-
-        def _connect(self) -> None:
-            selection = self._profile_list.curselection()
-            if not selection:
-                messagebox.showinfo("No selection", "Select a tunnel profile first.", parent=self)
-                return
-            self.destroy()
-            self._on_connect(self._settings.tunnel_profiles[selection[0]])
-
-        def _manage(self) -> None:
-            self.destroy()
-            self._on_manage()
-
-
-TunnelProfileSelectDialog = TunnelProfilesDialog.TunnelProfileSelectDialog
-
-
 class TunnelProfileEditor(tk.Toplevel):
     """Create or edit a named tunnel profile."""
 

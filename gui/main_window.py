@@ -25,7 +25,7 @@ from aws.sso_login import SsoLoginError, login, logout
 from config import Settings, TunnelProfile
 from gui.bastion_dialog import NewTunnelDialog
 from gui.profile_dialog import ProfileDialog
-from gui.tunnel_profiles_dialog import TunnelProfileSelectDialog, TunnelProfilesDialog
+from gui.tunnel_profiles_dialog import TunnelProfilesDialog
 from tunnel.manager import TunnelManager
 
 log = logging.getLogger(__name__)
@@ -113,7 +113,7 @@ class MainWindow(ttk.Frame):
             tree.heading(column, anchor="w")
 
     def _build_profiles_section(self) -> None:
-        frame = ttk.LabelFrame(self, text="AWS SSO Profiles", padding=8)
+        frame = ttk.LabelFrame(self, text="AWS Profiles", padding=8)
         frame.pack(fill="x", pady=(0, 8))
 
         columns = ("account", "role", "status", "region")
@@ -497,12 +497,7 @@ class MainWindow(ttk.Frame):
                 "Create a tunnel profile from File > Tunnel Profiles first.",
             )
             return
-        TunnelProfileSelectDialog(
-            self.root,
-            self.settings,
-            self._open_saved_tunnel_profile,
-            self._open_tunnel_profiles,
-        )
+        self._open_tunnel_profiles()
 
     def _show_new_tunnel_dialog(
         self,
@@ -568,6 +563,7 @@ class MainWindow(ttk.Frame):
                     target_port=saved_profile.target_port,
                     local_port=saved_profile.local_port,
                     region=profile.region,
+                    profile_label=saved_profile.name,
                 )
                 self._tunnel_profiles_by_id[tunnel_id] = saved_profile
                 self.root.after(0, self._refresh_tunnels)
@@ -596,9 +592,12 @@ class MainWindow(ttk.Frame):
     def _build_tunnels_section(self) -> None:
         self._tunnel_frame = ttk.LabelFrame(self, text="Active Tunnels", padding=8)
 
-        columns = ("bastion", "target", "local_port", "method", "uptime")
+        columns = ("profile", "target", "local_port", "method", "bastion", "uptime")
         self.tunnel_tree = ttk.Treeview(self._tunnel_frame, columns=columns, show="headings", height=5)
-        for col, label in zip(columns, ("Bastion", "Target", "Local Port", "Method", "Uptime")):
+        for col, label in zip(
+            columns,
+            ("Tunnel Profile", "Target", "Local Port", "Method", "Bastion Host", "Uptime"),
+        ):
             self.tunnel_tree.heading(col, text=label)
         tunnel_scrollbar = ttk.Scrollbar(self._tunnel_frame, orient="horizontal", command=self.tunnel_tree.xview)
         self.tunnel_tree.configure(xscrollcommand=tunnel_scrollbar.set)
@@ -642,15 +641,17 @@ class MainWindow(ttk.Frame):
             self.tunnel_tree.insert(
                 "", "end", iid=tunnel.id,
                 values=(
-                    tunnel.bastion_label,
+                    tunnel.profile_label or "—",
                     target,
                     local_port,
                     tunnel.method.upper().replace("SSM-SESSION", "SSM SESSION"),
+                    tunnel.bastion_label,
                     uptime,
                 ),
             )
         self._autofit_tree_columns(
-            self.tunnel_tree, ("bastion", "target", "local_port", "method", "uptime")
+            self.tunnel_tree,
+            ("profile", "target", "local_port", "method", "bastion", "uptime"),
         )
         if selected_id in {tunnel.id for tunnel in tunnels}:
             self.tunnel_tree.selection_set(selected_id)
@@ -666,8 +667,8 @@ class MainWindow(ttk.Frame):
             if tunnel_id not in self.tunnel_tree.get_children(""):
                 continue
             values = list(self.tunnel_tree.item(tunnel_id, "values"))
-            if len(values) >= 5:
-                values[4] = str(datetime.now() - tunnel.started_at).split(".")[0]
+            if len(values) >= 6:
+                values[5] = str(datetime.now() - tunnel.started_at).split(".")[0]
                 self.tunnel_tree.item(tunnel_id, values=values)
 
     def _auto_reconnect(self, saved_profile: TunnelProfile, dead_tunnel) -> None:
@@ -712,6 +713,7 @@ class MainWindow(ttk.Frame):
                     target_port=saved_profile.target_port,
                     local_port=saved_profile.local_port,
                     region=profile.region,
+                    profile_label=saved_profile.name,
                 )
                 self._tunnel_profiles_by_id[tunnel_id] = saved_profile
                 log.info("Automatically reconnected tunnel profile '%s'", saved_profile.name)

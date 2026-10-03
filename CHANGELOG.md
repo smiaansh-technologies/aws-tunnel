@@ -9,6 +9,36 @@ at `https://github.com/<owner>/aws-tunnel/releases/tag/vX.Y.Z`.
 
 ---
 
+## [1.3.0] — 2026-09-27
+
+### Removed
+
+- **"Connect Tunnel Profile" dialog** — the extra listbox popup that
+  duplicated the Tunnel Profiles manager is gone. Right-click a bastion →
+  **Connect Tunnel** (or **File → Tunnel Profiles…**) now opens the
+  **Tunnel Profiles** dialog directly, where **Open Tunnel** starts the
+  connection.
+
+### Added
+
+- **Active Tunnels now shows the Tunnel Profile name** in a new leading
+  **Tunnel Profile** column. Tunnels opened without a saved profile show
+  an em dash (—). `ActiveTunnel` gained an optional `profile_label`
+  field, populated by `TunnelManager.start_ssm_tunnel` /
+  `start_ssh_tunnel`.
+
+### Changed
+
+- **Active Tunnels column order** is now
+  `Tunnel Profile | Target | Local Port | Method | Bastion Host | Uptime`
+  — the bastion column moved to sit just before Uptime and is labelled
+  **Bastion Host**.
+- Renamed the first panel label from **"AWS SSO Profiles"** to
+  **"AWS Profiles"**.
+- User guide updated for the new dialog flow, column set, and panel name.
+
+---
+
 ## [1.2.2] — 2026-09-27
 
 ### Removed

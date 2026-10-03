@@ -17,7 +17,7 @@ from pathlib import Path
 log = logging.getLogger(__name__)
 
 APP_NAME = "aws-tunnel"
-APP_VERSION = "1.2.2"
+APP_VERSION = "1.3.0"
 
 # Where published releases live, as "<owner>/<repo>" on GitHub. The
 # Check-for-Updates feature queries this repo's Releases API. Leave as

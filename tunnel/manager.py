@@ -38,6 +38,8 @@ class ActiveTunnel:
     # Only set for ssm-session method (interactive shell, no port fwd)
     instance_id: str | None = None
     region: str | None = None
+    # Name of the saved Tunnel Profile this was opened from, if any.
+    profile_label: str | None = None
 
 
 class TunnelManager:
@@ -59,11 +61,15 @@ class TunnelManager:
         target_port: int,
         local_port: int,
         region: str | None = None,
+        profile_label: str | None = None,
     ) -> str:
         process = ssm_tunnel.start(
             profile_name, instance_id, target_host, target_port, local_port, region
         )
-        return self._register("ssm", bastion_label, target_host, target_port, local_port, process)
+        return self._register(
+            "ssm", bastion_label, target_host, target_port, local_port, process,
+            profile_label=profile_label,
+        )
 
     # -- SSH fallback --------------------------------------------------
 
@@ -77,12 +83,16 @@ class TunnelManager:
         target_host: str,
         target_port: int,
         local_port: int,
+        profile_label: str | None = None,
     ) -> str:
         handle = ssh_tunnel.start(
             bastion_host, bastion_port, username, private_key_path,
             target_host, target_port, local_port,
         )
-        return self._register("ssh", bastion_label, target_host, target_port, local_port, handle)
+        return self._register(
+            "ssh", bastion_label, target_host, target_port, local_port, handle,
+            profile_label=profile_label,
+        )
 
     # -- SSM interactive session --------------------------------------
 
@@ -113,7 +123,10 @@ class TunnelManager:
 
     # -- Shared --------------------------------------------------------
 
-    def _register(self, method, bastion_label, target_host, target_port, local_port, handle) -> str:
+    def _register(
+        self, method, bastion_label, target_host, target_port, local_port, handle,
+        profile_label: str | None = None,
+    ) -> str:
         tunnel_id = str(uuid.uuid4())
         with self._lock:
             self._tunnels[tunnel_id] = ActiveTunnel(
@@ -125,6 +138,7 @@ class TunnelManager:
                 local_port=local_port,
                 started_at=datetime.now(),
                 handle=handle,
+                profile_label=profile_label,
             )
         log.info("Registered %s tunnel %s (local port %s)", method, tunnel_id, local_port)
         return tunnel_id

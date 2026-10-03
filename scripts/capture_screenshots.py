@@ -188,7 +188,7 @@ class FakeTunnelManager:
     """Stand-in for TunnelManager showing one live SSM tunnel."""
 
     def __init__(self) -> None:
-        self._tunnel = ActiveTunnel(
+        saved = ActiveTunnel(
             id="demo-ssm-1",
             method="ssm",
             bastion_label="bastion-dev",
@@ -197,10 +197,23 @@ class FakeTunnelManager:
             local_port=15432,
             started_at=datetime.now() - timedelta(minutes=42, seconds=7),
             handle=_FakeHandle(),
+            profile_label="dev-postgres",
         )
+        ad_hoc = ActiveTunnel(
+            id="demo-ssm-2",
+            method="ssm-session",
+            bastion_label="bastion-staging",
+            target_host="i-0a1b2c3d4e5f6a7b8",
+            target_port=0,
+            local_port=0,
+            started_at=datetime.now() - timedelta(seconds=19),
+            handle=_FakeHandle(),
+            profile_label=None,
+        )
+        self._tunnels = [saved, ad_hoc]
 
     def list_tunnels(self):
-        return [self._tunnel]
+        return list(self._tunnels)
 
     def take_recently_dead(self):
         return []
