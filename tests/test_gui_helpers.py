@@ -152,19 +152,37 @@ def test_profiles_section_is_labelled_aws_profiles(main_window):
     assert frame.cget("text") == "AWS Profiles"
 
 
-def test_minimize_button_hides_window_to_tray(root):
-    """Clicking minimize must withdraw the window instead of leaving a taskbar button."""
-    window = tk.Toplevel(root)
-    root.update()
-    window.iconify()
-    root.update()
-    assert window.state() == "iconic"
+class _FakeRoot:
+    """Minimal stand-in so the iconic branch can be tested without a WM.
 
-    minimize_to_tray(window)
-    root.update()  # let after_idle run
+    Whether Tk honours iconify() depends on a window manager being present,
+    which headless CI does not have, so the state is reported directly.
+    """
 
-    assert window.state() == "withdrawn"
-    window.destroy()
+    def __init__(self, state: str) -> None:
+        self._state = state
+        self.withdrawn = False
+
+    def state(self) -> str:
+        return self._state
+
+    def withdraw(self) -> None:
+        self.withdrawn = True
+        self._state = "withdrawn"
+
+    def attributes(self, *args) -> None:
+        pass
+
+    def after_idle(self, func, *args) -> None:
+        func(*args)
+
+
+def test_minimize_button_hides_window_to_tray():
+    """An iconic window (minimize clicked) must be withdrawn, not left in the taskbar."""
+    fake = _FakeRoot("iconic")
+    minimize_to_tray(fake)
+    assert fake.withdrawn is True
+    assert fake.state() == "withdrawn"
 
 
 def test_withdraw_is_skipped_when_window_is_not_iconic(root):

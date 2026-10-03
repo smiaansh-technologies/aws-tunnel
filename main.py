@@ -26,7 +26,7 @@ import update_checker
 log = logging.getLogger(__name__)
 
 
-def minimize_to_tray(root: tk.Tk, event: tk.Event | None = None) -> None:
+def minimize_to_tray(root: tk.Tk) -> None:
     """Withdraw the window when the minimize button iconifies it.
 
     Tk's minimize button only iconifies the window, which leaves it sitting
@@ -368,7 +368,7 @@ def main() -> None:
             return
         if main_window is None or not main_window.settings.minimize_to_tray:
             return
-        minimize_to_tray(root, event)
+        minimize_to_tray(root)
 
     tray = TrayIcon(root, on_quit=quit_app)
     tray.start()
