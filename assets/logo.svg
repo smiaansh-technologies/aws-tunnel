@@ -10,7 +10,7 @@
     </linearGradient>
   </defs>
 
-  <rect x="16" y="16" width="480" height="480" rx="116" fill="url(#awsTunnelBg)"/>
+  <rect x="16" y="16" width="480" height="480" rx="116"" fill="url(#awsTunnelBg)"/>
 
   <!-- bastion host shield -->
   <path

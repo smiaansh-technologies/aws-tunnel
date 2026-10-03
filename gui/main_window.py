@@ -30,6 +30,9 @@ from tunnel.manager import TunnelManager
 
 log = logging.getLogger(__name__)
 
+# Dialog title used whenever an action needs a row picked first.
+NO_SELECTION = "No selection"
+
 _GREEN = "#1a7f37"
 _RED = "#c62828"
 
@@ -238,7 +241,7 @@ class MainWindow(ttk.Frame):
     def _delete_selected_profile(self) -> None:
         profile = self._selected_profile()
         if profile is None:
-            messagebox.showinfo("No selection", "Select a profile to delete first.")
+            messagebox.showinfo(NO_SELECTION, "Select a profile to delete first.")
             return
         if not messagebox.askyesno("Confirm delete", f"Delete profile '{profile.name}'?"):
             return
@@ -248,7 +251,7 @@ class MainWindow(ttk.Frame):
     def _login_selected_profile(self) -> None:
         profile = self._selected_profile()
         if profile is None:
-            messagebox.showinfo("No selection", "Select a profile to log in with first.")
+            messagebox.showinfo(NO_SELECTION, "Select a profile to log in with first.")
             return
 
         self._run_profile_action(profile, login)
@@ -256,7 +259,7 @@ class MainWindow(ttk.Frame):
     def _logout_selected_profile(self) -> None:
         profile = self._selected_profile()
         if profile is None:
-            messagebox.showinfo("No selection", "Select a profile to log out with first.")
+            messagebox.showinfo(NO_SELECTION, "Select a profile to log out with first.")
             return
         if not messagebox.askyesno("Disconnect profile", f"Disconnect profile '{profile.name}'?"):
             return
@@ -334,7 +337,7 @@ class MainWindow(ttk.Frame):
     def _discover_bastions(self) -> None:
         profile = self._selected_profile()
         if profile is None:
-            messagebox.showinfo("No selection", "Select a logged-in profile first.")
+            messagebox.showinfo(NO_SELECTION, "Select a logged-in profile first.")
             return
 
         self._discover_bastions_for(profile)
@@ -355,7 +358,7 @@ class MainWindow(ttk.Frame):
         profile = self._selected_profile()
         selection = self.bastion_tree.selection()
         if profile is None or not selection:
-            messagebox.showinfo("No selection", "Select a profile and a bastion first.")
+            messagebox.showinfo(NO_SELECTION, "Select a profile and a bastion first.")
             return
 
         bastion = self._bastions_by_id.get(selection[0])
@@ -466,7 +469,7 @@ class MainWindow(ttk.Frame):
         profile = self._selected_profile()
         selection = self.bastion_tree.selection()
         if profile is None or not selection:
-            messagebox.showinfo("No selection", "Select a profile and a bastion first.")
+            messagebox.showinfo(NO_SELECTION, "Select a profile and a bastion first.")
             return
 
         bastion = self._bastions_by_id.get(selection[0])
@@ -727,7 +730,7 @@ class MainWindow(ttk.Frame):
     def _disconnect_selected_tunnel(self) -> None:
         selection = self.tunnel_tree.selection()
         if not selection:
-            messagebox.showinfo("No selection", "Select a tunnel to disconnect first.")
+            messagebox.showinfo(NO_SELECTION, "Select a tunnel to disconnect first.")
             return
         tunnel_id = selection[0]
         self.tunnel_manager.stop_tunnel(tunnel_id)

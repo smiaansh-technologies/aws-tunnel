@@ -9,6 +9,50 @@ at `https://github.com/<owner>/aws-tunnel/releases/tag/vX.Y.Z`.
 
 ---
 
+## [1.4.2] — 2026-10-03
+
+Internal refactor plus a latent bug fix. No user-visible behaviour change.
+
+### Fixed
+
+- **The first-run data migration never actually ran.** `_migrate_old_app_data_dir()`
+  read `old_dir` as `~/.aws-tunnel`, which is the *destination* — so the copy
+  branch always found every file already present and the rename branch renamed
+  the directory onto itself. The code has said `~/.aws-sso-connector/` in its
+  docstring since the first commit while reading something else, so users
+  upgrading from the old app name would have silently lost their settings and
+  logs. It now reads the documented path.
+
+### Changed
+
+- `main()` was ~340 lines with 15 nested closures and a cognitive complexity of
+  53. It is now a thin wiring layer; the pieces moved to modules that own one
+  job each:
+  - `gui/dialogs.py` — Preferences, About, Update Available, and the window
+    centring that was copy-pasted three times.
+  - `gui/update_service.py` — `UpdateService`, which owns the update timer, the
+    background release lookup and its result dialogs.
+  - The setup-wizard bootstrap is now `_run_setup_wizard_if_needed()`.
+  - `_build_menu_bar()` takes the window, update service and quit callback as
+    parameters, so the menus are only built once the main window exists.
+- Repeated string literals hoisted into constants: `NO_SELECTION` in
+  `gui/main_window.py` (7 uses), `WINDOW_TITLE` / `CHECK_FOR_UPDATES_LABEL` in
+  `main.py`, and `SSO_START_URL` / `FAKE_PRIVATE_IP` in the capture script.
+- Screenshot fixtures use a single `FAKE_PRIVATE_IP` placeholder constant
+  instead of repeating the literal in every bastion entry.
+- The capture script's no-op stubs now say *why* they are no-ops.
+- Dropped a `# noqa: S606` comment in `gui/help_docs.py`. No linter is
+  configured in this project, so it suppressed nothing; the justification is
+  kept as a plain comment.
+
+### Added
+
+- `scripts/check_logo_sync.py` plus a release-workflow step that fails the
+  build if `assets/logo.png` no longer matches what `assets/logo.svg`
+  rasterizes to. The two silently drifted once already.
+
+---
+
 ## [1.4.1] — 2026-10-03
 
 ### Fixed

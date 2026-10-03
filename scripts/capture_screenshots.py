@@ -44,10 +44,16 @@ from PIL import ImageGrab  # noqa: E402
 
 
 # ---------------------------------------------------------------- fixtures
+# Every identifier below is fake. Screenshots must never be captured against
+# a real ~/.aws config or real credentials, so the SSO directory and every
+# address use obvious placeholders rather than real infrastructure values.
+SSO_START_URL = "https://d-xxxxxxxxxx.awsapps.com/start"
+FAKE_PRIVATE_IP = "<private-ip>"
+
 PROFILES = [
     AWSProfile(
         name="dev-admin",
-        sso_start_url="https://d-xxxxxxxxxx.awsapps.com/start",
+        sso_start_url=SSO_START_URL,
         sso_region="us-east-1",
         sso_account_id="111122223333",
         sso_role_name="AdministratorAccess",
@@ -55,7 +61,7 @@ PROFILES = [
     ),
     AWSProfile(
         name="staging-readonly",
-        sso_start_url="https://d-xxxxxxxxxx.awsapps.com/start",
+        sso_start_url=SSO_START_URL,
         sso_region="us-east-1",
         sso_account_id="222233334444",
         sso_role_name="ReadOnly",
@@ -63,7 +69,7 @@ PROFILES = [
     ),
     AWSProfile(
         name="prod-admin",
-        sso_start_url="https://d-xxxxxxxxxx.awsapps.com/start",
+        sso_start_url=SSO_START_URL,
         sso_region="us-east-1",
         sso_account_id="333344445555",
         sso_role_name="AdministratorAccess",
@@ -76,7 +82,7 @@ BASTIONS = [
     Bastion(
         instance_id="i-0feedfacefeedfac0",
         name="bastion-dev",
-        private_ip="[IP_ADDRESS]",
+        private_ip=FAKE_PRIVATE_IP,
         state="running",
         ssm_online=True,
     ),
@@ -219,9 +225,12 @@ class FakeTunnelManager:
         return []
 
     def stop_tunnel(self, tunnel_id):
+        # Intentionally a no-op: the capture driver only needs the list of
+        # tunnels to render the Active Tunnels table, it never stops one.
         pass
 
     def stop_all(self):
+        # Intentionally a no-op, for the same reason as stop_tunnel().
         pass
 
 
@@ -229,12 +238,16 @@ class _DummyTray:
     """No-op tray so no real tray icon is created during capture."""
 
     def __init__(self, root, on_quit):
+        # Intentionally a no-op: capture_screenshots replaces the real
+        # TrayIcon so no system-tray icon is created during a capture run.
         pass
 
     def start(self):
+        # Intentionally a no-op; see __init__ for why this class exists.
         pass
 
     def stop(self):
+        # Intentionally a no-op; see __init__ for why this class exists.
         pass
 
 
@@ -321,7 +334,7 @@ def capture_wizard() -> None:
 
     wizard = profile_dialog_mod.ProfileDialog(root, on_created=lambda: None)
     pump(root, 0.5)
-    wizard._entries["sso_start_url"].insert(0, "https://d-xxxxxxxxxx.awsapps.com/start")
+    wizard._entries["sso_start_url"].insert(0, SSO_START_URL)
     wizard._entries["sso_region"].set("us-east-1")
     pump(root, 0.2)
     capture(wizard, "01_setup_wizard_step1.png")

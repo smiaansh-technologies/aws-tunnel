@@ -52,7 +52,9 @@ def open_logs_folder() -> None:
 
 def _reveal_in_file_manager(path: Path) -> None:
     if sys.platform == "win32":
-        os.startfile(str(path))  # noqa: S606 - explorer launch, path is app-owned
+        # Explorer launch, not a shell: the path is app-owned (LOG_DIR), never
+        # user input, so there is nothing to inject here.
+        os.startfile(str(path))
     elif sys.platform == "darwin":
         subprocess.Popen(["open", str(path)])
     else:

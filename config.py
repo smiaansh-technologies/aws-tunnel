@@ -18,7 +18,7 @@ from pathlib import Path
 log = logging.getLogger(__name__)
 
 APP_NAME = "aws-tunnel"
-APP_VERSION = "1.4.1"
+APP_VERSION = "1.4.2"
 
 # Where published releases live, as "<owner>/<repo>" on GitHub. The
 # Check-for-Updates feature queries this repo's Releases API. Leave as
@@ -63,27 +63,36 @@ def _migrate_old_app_data_dir() -> None:
     """Move settings/logs from the old ~/.aws-sso-connector/ to
     ~/.aws-tunnel/ on first run after the rename, so existing users
     don't lose their data."""
-    old_dir = Path.home() / ".aws-tunnel"
+    old_dir = Path.home() / ".aws-sso-connector"
     if not old_dir.exists():
         return
     if APP_DATA_DIR.exists():
-        # Both exist — copy settings.json (and logs) into the new
-        # dir without removing the old one.
-        try:
-            for item in old_dir.iterdir():
-                dest = APP_DATA_DIR / item.name
-                if not dest.exists():
-                    if item.is_dir():
-                        shutil.copytree(item, dest)
-                    else:
-                        shutil.copy2(item, dest)
-        except OSError:
-            log.exception("Could not migrate old app data dir %s", old_dir)
+        _copy_missing_items(old_dir)
     else:
-        try:
-            old_dir.rename(APP_DATA_DIR)
-        except OSError:
-            log.exception("Could not rename old app data dir %s -> %s", old_dir, APP_DATA_DIR)
+        _rename_dir(old_dir)
+
+
+def _copy_missing_items(old_dir: Path) -> None:
+    """Copy across anything the new dir lacks, leaving the old dir in place."""
+    try:
+        for item in old_dir.iterdir():
+            dest = APP_DATA_DIR / item.name
+            if dest.exists():
+                continue
+            if item.is_dir():
+                shutil.copytree(item, dest)
+            else:
+                shutil.copy2(item, dest)
+    except OSError:
+        log.exception("Could not migrate old app data dir %s", old_dir)
+
+
+def _rename_dir(old_dir: Path) -> None:
+    """Move the old dir wholesale — cheaper than copying, nothing to merge."""
+    try:
+        old_dir.rename(APP_DATA_DIR)
+    except OSError:
+        log.exception("Could not rename old app data dir %s -> %s", old_dir, APP_DATA_DIR)
 
 
 _migrate_old_app_data_dir()

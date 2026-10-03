@@ -89,6 +89,15 @@ jobs:
         if: runner.os == 'Linux'
         run: xvfb-run -a uv run --python 3.12 --group test pytest -q
 
+      # The app loads logo.png while logo.svg is the master artwork. They
+      # drifted once already (an editor auto-save reverted the SVG), so fail
+      # the build rather than ship a PNG that no longer matches the source.
+      - name: Install Playwright chromium
+        run: uv run --python 3.12 --group test playwright install --with-deps chromium
+
+      - name: Verify logo.png is in sync with logo.svg
+        run: uv run --python 3.12 --group test python scripts/check_logo_sync.py
+
       - name: Build binary with PyInstaller
         run: uv run --python 3.12 --group dev pyinstaller --clean --noconfirm aws-tunnel.spec
 
