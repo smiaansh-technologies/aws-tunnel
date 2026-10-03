@@ -9,6 +9,33 @@ at `https://github.com/<owner>/aws-tunnel/releases/tag/vX.Y.Z`.
 
 ---
 
+## [1.4.0] — 2026-10-03
+
+### Added
+
+- **The app now has an icon.** `assets/logo.svg` is the master artwork — a
+  bastion shield containing a connector, on the AWS-orange gradient rounded
+  square. `assets/logo.png` is rasterized from it by
+  `scripts/render_logo_png.py`, and that PNG is what ships:
+  - **Window title bar** — the main window shows the icon (new
+    `gui/icons.py:apply_window_icon`).
+  - **System tray** — the tray icon is now the real logo instead of the
+    placeholder orange tile with an "S" that PIL used to draw at runtime
+    (`gui/tray.py`).
+- `config.app_root()` is now the single place that resolves bundled-file
+  paths for both source runs and frozen PyInstaller builds, so `docs/` and
+  `assets/` resolve the same way. `gui/help_docs.py` reuses it instead of
+  keeping its own copy.
+- `aws-tunnel.spec` bundles `assets/` alongside `docs/`, so the packaged
+  executable gets the icon instead of silently falling back to a default.
+
+### Changed
+
+- The shield is drawn larger within the tile (tighter margins) so it stays
+  legible at tray sizes.
+
+---
+
 ## [1.3.1] — 2026-09-27
 
 ### Fixed

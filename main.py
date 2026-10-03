@@ -17,6 +17,7 @@ from tkinter import messagebox, ttk
 
 from config import GITHUB_REPO, Settings
 from gui.help_docs import APP_VERSION, open_logs_folder, open_user_guide
+from gui.icons import apply_window_icon
 from gui.main_window import MainWindow
 from gui.tray import TrayIcon
 from gui.tunnel_profiles_dialog import TunnelProfilesDialog
@@ -57,6 +58,7 @@ def main() -> None:
     root.title("AWS Tunnel")
     root.geometry("760x700")
     root.minsize(700, 620)
+    apply_window_icon(root)
 
     def quit_app() -> None:
         log.info("Shutting down")

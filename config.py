@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import shutil
+import sys
 from uuid import uuid4
 from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
@@ -17,7 +18,7 @@ from pathlib import Path
 log = logging.getLogger(__name__)
 
 APP_NAME = "aws-tunnel"
-APP_VERSION = "1.3.1"
+APP_VERSION = "1.4.0"
 
 # Where published releases live, as "<owner>/<repo>" on GitHub. The
 # Check-for-Updates feature queries this repo's Releases API. Leave as
@@ -36,6 +37,26 @@ AWS_SSO_CACHE_DIR = AWS_DIR / "sso" / "cache"
 APP_DATA_DIR = Path.home() / f".{APP_NAME}"
 LOG_DIR = APP_DATA_DIR / "logs"
 SETTINGS_FILE = APP_DATA_DIR / "settings.json"
+
+
+def app_root() -> Path:
+    """Directory holding the app's own bundled files (docs, assets).
+
+    Source run -> the project root. Frozen (PyInstaller) -> the bundle
+    directory that ``sys._MEIPASS`` points at.
+    """
+    if getattr(sys, "frozen", False):
+        meipass = getattr(sys, "_MEIPASS", None)
+        if meipass:
+            return Path(meipass)
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent
+
+
+# Read-only artwork shipped with the app. assets/logo.svg is the master;
+# assets/logo.png is rasterized from it by scripts/render_logo_png.py.
+ASSETS_DIR = app_root() / "assets"
+APP_ICON = ASSETS_DIR / "logo.png"
 
 
 def _migrate_old_app_data_dir() -> None:

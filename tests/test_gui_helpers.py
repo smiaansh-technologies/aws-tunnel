@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from gui import clipboard, tray
+from gui import clipboard, icons, tray
 from gui.main_window import MainWindow
 from main import main, minimize_to_tray
 from tunnel.manager import ActiveTunnel
@@ -64,8 +64,26 @@ def test_tray_icon_builds_and_routes_actions(root):
     instance._icon.stop.assert_called_once()
 
 
-def test_build_icon_image_has_expected_size():
-    assert tray._build_icon_image().size == (tray.ICON_SIZE, tray.ICON_SIZE)
+def test_load_icon_returns_square_rgba_image():
+    image = icons.load_icon(tray.ICON_SIZE)
+    assert image is not None
+    assert image.size == (tray.ICON_SIZE, tray.ICON_SIZE)
+    assert image.mode == "RGBA"
+
+
+def test_load_icon_returns_none_when_asset_is_missing(monkeypatch, tmp_path):
+    monkeypatch.setattr(icons, "APP_ICON", tmp_path / "nope.png")
+    assert icons.load_icon(32) is None
+
+
+def test_apply_window_icon_sets_the_title_bar_icon(root):
+    assert icons.apply_window_icon(root) is True
+    assert root.app_icon_photo.width() > 0
+
+
+def test_apply_window_icon_reports_failure_when_asset_is_missing(root, monkeypatch, tmp_path):
+    monkeypatch.setattr(icons, "APP_ICON", tmp_path / "nope.png")
+    assert icons.apply_window_icon(root) is False
 
 
 @pytest.fixture

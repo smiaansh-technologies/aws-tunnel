@@ -13,20 +13,12 @@ import threading
 import tkinter as tk
 
 import pystray
-from PIL import Image, ImageDraw
+
+from gui.icons import load_icon
 
 log = logging.getLogger(__name__)
 
 ICON_SIZE = 64
-
-
-def _build_icon_image() -> Image.Image:
-    """Draw a simple recognizable icon so the app doesn't need an image asset."""
-    image = Image.new("RGBA", (ICON_SIZE, ICON_SIZE), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(image)
-    draw.rounded_rectangle((4, 4, ICON_SIZE - 4, ICON_SIZE - 4), radius=12, fill=(255, 153, 0, 255))
-    draw.text((18, 18), "S", fill=(255, 255, 255, 255))
-    return image
 
 
 class TrayIcon:
@@ -37,7 +29,7 @@ class TrayIcon:
         self._on_quit = on_quit
         self._icon = pystray.Icon(
             "aws_tunnel",
-            icon=_build_icon_image(),
+            icon=load_icon(ICON_SIZE),
             title="AWS Tunnel",
             menu=pystray.Menu(
                 pystray.MenuItem("Show", self._show, default=True),

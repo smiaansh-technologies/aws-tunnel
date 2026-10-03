@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">AWS Tunnel</title>
+  <desc id="logoDesc">An arrow passing through a gateway portal, representing port forwarding through a bastion host.</desc>
+
+  <defs>
+    <linearGradient id="awsTunnelBg" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#FFB347"/>
+      <stop offset="0.55" stop-color="#FF9900"/>
+      <stop offset="1" stop-color="#DE7A00"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="16" y="16" width="480" height="480" rx="116" fill="url(#awsTunnelBg)"/>
+
+  <!-- gateway portal: rounded square, open on the right -->
+  <path
+    d="M328 200A60 60 0 0 0 268 140H148A60 60 0 0 0 88 200V312A60 60 0 0 0 148 372H268A60 60 0 0 0 328 312"
+    stroke="#FFFFFF"
+    stroke-width="44"
+    stroke-linecap="butt"
+    stroke-linejoin="round"
+  />
+
+  <!-- traffic entering the portal and breaking out the far side -->
+  <path d="M172 256H372" stroke="#FFFFFF" stroke-width="52" stroke-linecap="round"/>
+  <path d="M348 182L448 256L348 330Z" fill="#FFFFFF" stroke-linejoin="round"/>
+</svg>
